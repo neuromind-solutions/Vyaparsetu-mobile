@@ -1,0 +1,78 @@
+VyapaarSetu — End User License Agreement (EULA)
+
+IMPORTANT — READ CAREFULLY. This End User License Agreement ("Agreement") is a
+legal agreement between you (either an individual or a single business entity,
+"you") and Neuromind Solutions ("Licensor")
+for the VyapaarSetu software product, including the installer, program files,
+and any associated documentation (collectively, the "Software").
+
+By installing, copying, or otherwise using the Software, you agree to be bound
+by the terms of this Agreement. If you do not agree, do not install or use the
+Software.
+
+1. LICENSE GRANT
+   Subject to your payment of the applicable license fee and your compliance
+   with this Agreement, the Licensor grants you a non-exclusive, non-transferable
+   license to install and use one (1) copy of the Software on a single computer
+   for your internal business purposes. Each computer on which the Software is
+   installed requires a separate purchased license.
+
+2. RESTRICTIONS
+   You may NOT, in whole or in part:
+   (a) copy, distribute, resell, sublicense, rent, lease, or lend the Software
+       to any third party;
+   (b) publish or make the Software available for others to copy;
+   (c) reverse engineer, decompile, or disassemble the Software, except to the
+       extent this restriction is prohibited by applicable law;
+   (d) modify, adapt, or create derivative works of the Software; or
+   (e) remove or alter any proprietary notices or labels on the Software.
+
+3. OWNERSHIP
+   The Software is licensed, not sold. The Licensor retains all right, title,
+   and interest in and to the Software, including all intellectual property
+   rights. This Agreement does not grant you any rights to trademarks or
+   service marks of the Licensor.
+
+4. YOUR DATA
+   All business data you enter (customers, bills, ledgers, etc.) is yours and is
+   stored locally on your own computer. The Licensor does not access, transmit,
+   or store your business data. YOU ARE RESPONSIBLE FOR MAINTAINING BACKUPS OF
+   YOUR DATA. The Software provides local and optional cloud backup features to
+   assist you, but the Licensor is not responsible for any loss of data.
+
+5. THIRD-PARTY SERVICES
+   Optional features (such as Google Drive backup and WhatsApp sharing) rely on
+   third-party services governed by their own terms. Your use of those services
+   is at your own risk and subject to those third parties' agreements.
+
+6. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY
+   KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+   THE LICENSOR DOES NOT WARRANT THAT THE SOFTWARE WILL BE ERROR-FREE OR
+   UNINTERRUPTED.
+
+7. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+   LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL
+   DAMAGES, OR FOR LOSS OF PROFITS, REVENUE, OR DATA, ARISING OUT OF OR RELATED
+   TO YOUR USE OF OR INABILITY TO USE THE SOFTWARE. THE LICENSOR'S TOTAL
+   LIABILITY UNDER THIS AGREEMENT SHALL NOT EXCEED THE AMOUNT YOU PAID FOR THE
+   LICENSE.
+
+8. TERM AND TERMINATION
+   This Agreement is effective until terminated. It terminates automatically if
+   you breach any of its terms. Upon termination, you must stop using the
+   Software and remove all copies from your computer. Sections 3, 4, 6, 7, and 9
+   survive termination.
+
+9. GOVERNING LAW
+   This Agreement is governed by the laws of India, and the courts located in
+   Maharashtra, India shall have exclusive jurisdiction over
+   any dispute arising under it.
+
+10. ENTIRE AGREEMENT
+    This Agreement constitutes the entire agreement between you and the Licensor
+    regarding the Software and supersedes any prior understandings.
+
+Copyright (c) 2026 Neuromind Solutions. All rights reserved.

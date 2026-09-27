@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - VyapaarSetu</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌾</text></svg>">
+</head>
+<body>
+
+  <header>
+    <div class="container nav-wrapper">
+      <a href="index.html" class="logo">
+        <span class="logo-badge">VS</span>
+        <span>VyapaarSetu</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#features">Features</a>
+        <a href="privacy-policy.html" style="color: var(--primary-dark); font-weight: 700;">Privacy Policy</a>
+        <a href="terms-of-service.html">Terms</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <article class="legal-content">
+      <h1>Privacy Policy for VyapaarSetu</h1>
+      <div class="meta">
+        <strong>Effective Date:</strong> August 29, 2026 | <strong>Last Updated:</strong> August 29, 2026
+      </div>
+
+      <p>
+        At <strong>VyapaarSetu</strong> ("we", "our", or "the Application"), we respect your privacy and are committed to protecting the privacy and security of your personal and business data. This Privacy Policy explains how our desktop and web application collects, uses, and safeguards information when you use our software and its Google Drive cloud backup integration.
+      </p>
+
+      <h2>1. Information We Collect</h2>
+      <p>
+        VyapaarSetu is an offline-first business management application. All core business data (farmer records, buyer invoices, sales vouchers, inventory entries, and accounting ledgers) is stored <strong>locally on your computer</strong> in an encrypted/local SQLite database.
+      </p>
+      <ul>
+        <li><strong>Local Business Records:</strong> Customer/farmer names, transaction amounts, crate counts, contact phone numbers, and payment details entered directly by you.</li>
+        <li><strong>OAuth Authentication Data:</strong> If you choose to enable the Google Drive Cloud Backup feature, the app securely receives an OAuth 2.0 access token and refresh token directly from Google to authenticate backup requests.</li>
+      </ul>
+
+      <h2>2. Google User Data & OAuth Permissions</h2>
+      <p>
+        VyapaarSetu requests access to the following Google OAuth scope:
+      </p>
+      <ul>
+        <li>
+          <code class="scope-pill">https://www.googleapis.com/auth/drive.file</code> — <strong>See, create, and edit only the Google Drive files you have opened or created with this app.</strong>
+        </li>
+      </ul>
+
+      <h2>3. How We Use Google Drive Data</h2>
+      <p>VyapaarSetu uses Google Drive API solely for the following explicit purposes:</p>
+      <ul>
+        <li><strong>Creating Dedicated Backup Directory:</strong> To create an app-specific folder named <code>MandaiMitra_Backups</code> inside your personal Google Drive account.</li>
+        <li><strong>Uploading Local Database Backups:</strong> To securely upload compressed, timestamped snapshots of your local SQLite database so you do not lose your business records in case of hardware failure.</li>
+        <li><strong>Restoring Databases:</strong> To allow you to browse and restore previously backed-up database files back into your local VyapaarSetu installation.</li>
+      </ul>
+
+      <h2>4. Google API Limited Use Disclosure</h2>
+      <p>
+        VyapaarSetu strictly adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements:
+      </p>
+      <ul>
+        <li>We <strong>do NOT</strong> use Google user data to serve advertisements.</li>
+        <li>We <strong>do NOT</strong> sell, rent, or transfer your Google data or business data to third parties.</li>
+        <li>We <strong>do NOT</strong> use your Google user data to build, train, or improve generalized Artificial Intelligence (AI) or Machine Learning (ML) models.</li>
+        <li>We <strong>do NOT</strong> access, read, or modify any files in your Google Drive other than those explicitly created by VyapaarSetu.</li>
+      </ul>
+
+      <h2>5. Data Storage and Security</h2>
+      <ul>
+        <li>OAuth tokens are stored locally on your device in secure application storage and are transmitted directly and securely to Google's OAuth endpoints via HTTPS/TLS encryption.</li>
+        <li>No third-party intermediary servers are used to intercept, store, or process your Google Drive data or accounting ledgers.</li>
+      </ul>
+
+      <h2>6. User Data Control, Revocation, and Deletion</h2>
+      <p>You maintain complete control over your data at all times:</p>
+      <ul>
+        <li><strong>Disconnecting from within App:</strong> You can disconnect Google Drive at any time in the <em>Settings &gt; Backup &amp; Cloud</em> section.</li>
+        <li><strong>Revoking Access via Google:</strong> You can immediately revoke VyapaarSetu's access via your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account Permissions page</a>.</li>
+        <li><strong>Deleting Backup Files:</strong> You can delete any backup files at any time directly through your Google Drive web interface inside the <code>MandaiMitra_Backups</code> folder.</li>
+      </ul>
+
+      <h2>7. Children's Privacy</h2>
+      <p>
+        Our application is designed for business operators and is not intended for use by children under the age of 13. We do not knowingly collect personal data from children.
+      </p>
+
+      <h2>8. Changes to this Privacy Policy</h2>
+      <p>
+        We may update our Privacy Policy from time to time. Any changes will be posted on this page with an updated effective date.
+      </p>
+
+      <h2>9. Contact Us</h2>
+      <p>
+        If you have any questions, feedback, or concerns regarding this Privacy Policy or our data practices, please contact:
+      </p>
+      <p>
+        <strong>Developer:</strong> Abhay Rajput<br>
+        <strong>Email:</strong> <a href="mailto:abhayrajput.dev@gmail.com">abhayrajput.dev@gmail.com</a><br>
+        <strong>Project:</strong> <a href="https://github.com/abhayr18/VyaparSetu" target="_blank" rel="noopener">https://github.com/abhayr18/VyaparSetu</a>
+      </p>
+    </article>
+  </main>
+
+  <footer>
+    <div class="container footer-bottom">
+      <p>&copy; 2026 VyapaarSetu. All rights reserved. | <a href="index.html" style="color: #9ca3af;">Home</a> | <a href="terms-of-service.html" style="color: #9ca3af;">Terms of Service</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

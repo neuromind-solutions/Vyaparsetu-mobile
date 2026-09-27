@@ -1,0 +1,78 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+
+# Electron installer output (electron-builder)
+release/
+
+# SQLite databases
+*.db
+database/vyapaarsetu.db
+# WAL mode keeps recent writes in these two sidecars, so `*.db` does not cover
+# them and a `git add -A` would commit a fragment of real client data.
+*.db-wal
+*.db-shm
+
+# Drive credentials (matched in any directory, wherever the tokens land)
+drive_tokens.json
+
+# Local backups
+backups/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE configurations
+.vscode/
+.idea/
+.claude/
+.DS_Store
+Thumbs.db
+
+# Licensing — MUST NOT be committed.
+# The private key can forge licenses for every install; licenses.json is the
+# customer register; license.json is a machine's local activation record.
+tools/keys/
+tools/licenses.json
+*.pem
+backend/database/license.json
+license.json
+
+# Tooling
+gstack/
+
+# Android build outputs & local configuration
+.gradle/
+.kotlin/
+**/android/build/
+**/android/**/build/
+**/android/.gradle/
+**/android/.kotlin/
+**/android/local.properties
+**/android/app/src/main/assets/public/
+*.log
+
+# Implementation & Architecture Documents (skipped as requested)
+MOBILE_STANDALONE_IMPLEMENTATION_PLAN.md
+ONLINE_BACKUP_IMPLEMENTATION.md
+ZERO_CONFIG_CLOUD_BACKUP_ENGINE.md
+PRODUCTION_READINESS_AUDIT.md
+MANUAL_MOBILE_TESTING_GUIDE.md
+context.md
+VyaparSetu_Mobile_Architecture_Execution_Pack_v4_Corrected/
+mobile_preview.html
+*.xlsx
+docs/ZERO_CONFIG_CLOUD_BACKUP_ENGINE.md
+docs/BASELINE.md
+
+# Test Suites & Verification Scripts (skipped as requested)
+tests/
+backend/tests/
+scripts/
+**/__checks__/

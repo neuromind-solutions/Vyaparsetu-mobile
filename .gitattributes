@@ -1,0 +1,18 @@
+# Auto-normalize text files to LF to avoid CRLF merge conflicts across OS platforms
+* text=auto eol=lf
+
+# Windows batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
