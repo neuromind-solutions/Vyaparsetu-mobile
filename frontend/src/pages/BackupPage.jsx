@@ -514,7 +514,7 @@ export default function BackupPage() {
             justifyContent: 'space-between',
             gap: 12,
           }}>
-            <div style={{ minWidth: 260 }}>
+            <div style={{ minWidth: 'min(260px, 100%)', flex: '1 1 auto' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, marginBottom: 4 }}>
                 Current Backup Directory:
               </div>

@@ -344,7 +344,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── 5. Data Grid: Recent Bills + Pending Udhar ───────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 20, marginBottom: 24 }}>
+      <div className="dashboard-data-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))', gap: 20, marginBottom: 24 }}>
 
         {/* Recent Bills */}
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
