@@ -8,6 +8,7 @@ import useSettings from '../hooks/useSettings';
 import { useTranslation } from '../hooks/useTranslation';
 import MarathiInput from '../components/MarathiInput';
 import cloudSyncService from '../services/cloudSyncService';
+import QRScannerModal from '../components/QRScannerModal';
 import {
   AlertIcon,
   CheckIcon,
@@ -87,6 +88,7 @@ export default function SettingsPage() {
   const [testingConnection, setTestingConnection] = useState(false);
   const [syncingNow, setSyncingNow] = useState(false);
   const [showAnonKey, setShowAnonKey] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   const [newUnitInput, setNewUnitInput] = useState('');
   const [newCategoryInput, setNewCategoryInput] = useState('');
@@ -210,6 +212,26 @@ export default function SettingsPage() {
       showToast(err.message || 'Connection test failed', 'error');
     } finally {
       setTestingConnection(false);
+    }
+  };
+
+  // Called by QRScannerModal after a successful scan — auto-fills and saves credentials
+  const handleQRPaired = async ({ url, key }) => {
+    setShowQRScanner(false);
+    setForm(prev => ({ ...prev, supabase_url: url, supabase_anon_key: key }));
+    try {
+      await saveSettings({ supabase_url: url, supabase_anon_key: key });
+      const res = await cloudSyncService.testConnection(url, key);
+      if (res.success) {
+        showToast('Mobile paired! ' + res.message, 'success');
+        cloudSyncService.startRealtimeSubscription().catch(() => {});
+      } else {
+        showToast('Credentials saved but connection test failed: ' + res.message, 'error');
+      }
+      const stats = await cloudSyncService.getSyncStats();
+      setSyncStats(stats);
+    } catch (err) {
+      showToast('Pairing error: ' + (err.message || 'Unknown error'), 'error');
     }
   };
 
@@ -883,7 +905,26 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* Scan QR from Desktop — most prominent action */}
+                <button
+                  type="button"
+                  id="scan-qr-pair-btn"
+                  className="btn btn-primary"
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '0.85rem',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: 'linear-gradient(135deg, #6366f1, #2563eb)',
+                    border: 'none',
+                    borderRadius: 10,
+                  }}
+                  onClick={() => setShowQRScanner(true)}
+                >
+                  &#x1F4F7; Scan QR from Desktop
+                </button>
                 <button
                   type="button"
                   id="test-cloud-sync-btn"
@@ -1000,6 +1041,14 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScannerModal
+          onPaired={handleQRPaired}
+          onClose={() => setShowQRScanner(false)}
+        />
+      )}
     </div>
   );
 }
