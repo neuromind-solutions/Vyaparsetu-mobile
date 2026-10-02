@@ -60,6 +60,9 @@ jobs:
 
       - name: Sync Capacitor Android Project
         working-directory: frontend
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
         run: npx cap sync android
 
       - name: Prepare Signing Keystore
@@ -70,24 +73,21 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
+          mkdir -p app
           if [ -n "$KEYSTORE_BASE64" ]; then
             echo "Using production keystore from repository secrets..."
             echo "$KEYSTORE_BASE64" | base64 --decode > app/vyaparsetu-release.jks
-            echo "KEYSTORE_FILE=vyaparsetu-release.jks" >> $GITHUB_ENV
-            echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> $GITHUB_ENV
-            echo "KEY_ALIAS=$KEY_ALIAS" >> $GITHUB_ENV
-            echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
           else
             echo "No KEYSTORE_BASE64 secret found. Generating automated self-signed release keystore..."
             keytool -genkeypair -v -keystore app/vyaparsetu-release.jks \
               -alias vyaparsetu -keyalg RSA -keysize 2048 -validity 10000 \
               -storepass "VyaparSetu2026!" -keypass "VyaparSetu2026!" \
               -dname "CN=VyapaarSetu, OU=Production, O=VyapaarSetu, L=Pune, ST=Maharashtra, C=IN"
-            echo "KEYSTORE_FILE=vyaparsetu-release.jks" >> $GITHUB_ENV
-            echo "KEYSTORE_PASSWORD=VyaparSetu2026!" >> $GITHUB_ENV
-            echo "KEY_ALIAS=vyaparsetu" >> $GITHUB_ENV
-            echo "KEY_PASSWORD=VyaparSetu2026!" >> $GITHUB_ENV
           fi
+          echo "KEYSTORE_FILE=$GITHUB_WORKSPACE/frontend/android/app/vyaparsetu-release.jks" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${KEYSTORE_PASSWORD:-VyaparSetu2026!}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${KEY_ALIAS:-vyaparsetu}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${KEY_PASSWORD:-VyaparSetu2026!}" >> $GITHUB_ENV
 
       - name: Make Gradle Executable
         working-directory: frontend/android
