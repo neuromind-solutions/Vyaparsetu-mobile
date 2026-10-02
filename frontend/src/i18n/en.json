@@ -378,6 +378,13 @@
     "modeUPI": "UPI",
     "modeOther": "Other",
     "selectCustomerHint": "Search customer by name or mobile number",
+    "limitExceededBadge": "> 10,000",
+    "limitExceededWarning": "Credit Limit Alert: Customer's balance exceeds ₹10,000!",
+    "filterAbove10k": "> ₹10,000 Udhar",
+    "filterBelow10k": "< ₹10,000",
+    "highCreditCustomers": "Udhar > ₹10,000 Customers",
+    "highCreditAlertTitle": "Customers Exceeding ₹10,000 Credit",
+    "highCreditAlertDesc": "These customers have exceeded ₹10,000 outstanding credit limit.",
     "customersWithBalance": "Customers with Outstanding Balance",
     "notePlaceholder": "e.g. Cleared pending dues"
   },

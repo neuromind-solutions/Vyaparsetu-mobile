@@ -476,6 +476,11 @@ export default function TransactionEntry({
                 {errors.customer}
               </span>
             )}
+            {selectedCustomer && Number(selectedCustomer.credit_balance || 0) >= 10000 && (
+              <div style={{ marginTop: '4px', background: '#fee2e2', border: '1px solid #fca5a5', padding: '3px 8px', borderRadius: '4px', fontSize: '0.75rem', color: '#b91c1c', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span>⚠️ {t('credit.limitExceededWarning') || 'उधारी मर्यादा सूचना: बाकी ₹१०,००० पेक्षा जास्त!'} (₹{Number(selectedCustomer.credit_balance).toLocaleString('en-IN')})</span>
+              </div>
+            )}
           </div>
 
           {/* Vegetable Input */}

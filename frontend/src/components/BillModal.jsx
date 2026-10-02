@@ -457,6 +457,18 @@ export default function BillModal({ isOpen, onClose, onSubmit, bill }) {
                 error={errors.customer_id}
               />
               {errors.customer_id && <span className="field-error">{errors.customer_id}</span>}
+              {(() => {
+                const sel = customers.find(c => c.id === Number(customerId));
+                if (sel && Number(sel.credit_balance || 0) >= 10000) {
+                  return (
+                    <div style={{ marginTop: '6px', fontSize: '0.78rem', color: '#b91c1c', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '4px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                      <AlertIcon style={{ width: 14, height: 14, flexShrink: 0 }} />
+                      <span>⚠️ {t('credit.limitExceededWarning') || 'उधारी मर्यादा सूचना: बाकी ₹१०,००० पेक्षा जास्त!'} (₹{Number(sel.credit_balance).toLocaleString('en-IN')})</span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
 
             <div className="form-group">

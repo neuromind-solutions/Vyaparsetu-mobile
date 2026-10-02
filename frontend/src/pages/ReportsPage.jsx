@@ -12,7 +12,7 @@ import html2canvas from 'html2canvas';
 import { Capacitor } from '@capacitor/core';
 import { downloadFile } from '../utils/fileDownloader';
 import { reportsApi } from '../services/apiService';
-import { exportAllInOneReportToExcel, exportDailyReportToExcel } from '../utils/excelUtils';
+import { exportAllInOneReportToExcel, exportDailyReportToExcel, exportCreditReportToExcel } from '../utils/excelUtils';
 import {
   PhoneIcon,
   AlertIcon,
@@ -75,10 +75,15 @@ export default function ReportsPage() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfProgressText, setPdfProgressText] = useState('');
   const [isExportingExcel, setIsExportingExcel] = useState(false);
+  const [creditBalanceMinFilter, setCreditBalanceMinFilter] = useState('all'); // 'all' | 'above_10k'
 
   const handleDownloadMasterExcel = async () => {
     try {
       setIsExportingExcel(true);
+      if (reportType === 'credit') {
+        exportCreditReportToExcel(data, date, creditBalanceMinFilter === 'above_10k');
+        return;
+      }
       if (reportType === 'daily' || reportType === 'range') {
         const targetDate = reportType === 'daily' ? date : `${startDate}_to_${endDate}`;
         exportDailyReportToExcel(data, targetDate);
@@ -1259,92 +1264,191 @@ export default function ReportsPage() {
             </div>
 
             {/* 2. Customer Outstanding Balance Listing */}
-            <div className="card" style={{ padding: '16px 20px' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                {t('credit.customersWithBalance') || 'उधार शिल्लक असलेले ग्राहक (Outstanding Balances)'}
-              </h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th className="table-th">{t('customers.name')}</th>
-                      <th className="table-th">{t('customers.mobile')}</th>
-                      <th className="table-th" style={{ textAlign: 'center' }}>{t('credit.todaySubmit') || 'आज जमा / भरणा'}</th>
-                      <th className="table-th" style={{ textAlign: 'center' }}>{t('credit.lastBalanceUpdate') || 'शेवटचा व्यवहार दिनांक'}</th>
-                      <th className="table-th" style={{ textAlign: 'right' }}>{t('credit.balanceAfter')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((c) => {
-                      const todayPaid = Number(c.today_recovery || 0);
-                      const hasTodayPaid = todayPaid > 0;
-                      const lastDate = c.last_transaction_date;
-                      const daysAgo = getDaysAgoLabel(lastDate, date, language === 'mr');
+            {(() => {
+              const highCreditCustomers = list.filter((c) => Number(c.credit_balance || 0) >= 10000);
+              const filteredList = creditBalanceMinFilter === 'above_10k' ? highCreditCustomers : list;
 
-                      return (
-                        <tr className="table-row" key={c.id}>
-                          <td className="table-cell" style={{ fontWeight: 600 }}>{c.name}</td>
-                          <td className="table-cell" style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem' }}>
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <PhoneIcon style={{ width: '12px', height: '12px' }} /> {c.mobile || '—'}
-                            </span>
-                          </td>
-                          <td className="table-cell" style={{ textAlign: 'center' }}>
-                            {hasTodayPaid ? (
-                              <span style={{
-                                display: 'inline-flex', alignItems: 'center', gap: 4,
-                                padding: '3px 8px', borderRadius: '12px',
-                                background: '#dcfce7', color: '#15803d',
-                                fontWeight: 700, fontSize: '0.82rem'
-                              }}>
-                                🟢 ₹{todayPaid.toFixed(2)}
-                              </span>
-                            ) : (
-                              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>—</span>
-                            )}
-                          </td>
-                          <td className="table-cell" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                            {hasTodayPaid ? (
-                              <span style={{ fontWeight: 700, color: '#15803d', fontSize: '0.82rem' }}>
-                                {language === 'mr' ? 'आज' : 'Today'} ({formatDDMMYYYY(date)})
-                              </span>
-                            ) : lastDate ? (
-                              <span style={{ fontSize: '0.82rem', color: 'var(--color-text-primary)' }}>
-                                <strong>{formatDDMMYYYY(lastDate)}</strong>
-                                {daysAgo && (
-                                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.74rem', marginLeft: 4 }}>
-                                    ({daysAgo})
-                                  </span>
-                                )}
-                              </span>
-                            ) : (
-                              <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>—</span>
-                            )}
-                          </td>
-                          <td className="table-cell" style={{ textAlign: 'right' }}>
-                            <span className="badge badge-warning">₹{Number(c.credit_balance).toFixed(2)}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
-                      <td className="table-cell" colSpan={2} style={{ textAlign: 'right' }}>Total:</td>
-                      <td className="table-cell" style={{ textAlign: 'center', color: 'var(--color-success)', fontWeight: 700 }}>
-                        ₹{list.reduce((s, c) => s + Number(c.today_recovery || 0), 0).toFixed(2)}
-                      </td>
-                      <td className="table-cell"></td>
-                      <td className="table-cell" style={{ textAlign: 'right' }}>
-                        <span className="badge badge-warning" style={{ background: 'transparent', padding: 0 }}>
-                          ₹{list.reduce((s, c) => s + Number(c.credit_balance), 0).toFixed(2)}
+              return (
+                <div className="card" style={{ padding: '16px 20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                      {t('credit.customersWithBalance') || 'उधार शिल्लक असलेले ग्राहक (Outstanding Balances)'}
+                    </h3>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        onClick={() => setCreditBalanceMinFilter('all')}
+                        style={{
+                          padding: '4px 12px',
+                          borderRadius: 16,
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          background: creditBalanceMinFilter === 'all' ? 'var(--color-primary)' : 'var(--color-bg-light)',
+                          color: creditBalanceMinFilter === 'all' ? '#fff' : 'var(--color-text-secondary)',
+                          boxShadow: creditBalanceMinFilter === 'all' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                        }}
+                      >
+                        {language === 'mr' ? 'सर्व ग्राहक' : 'All Customers'} ({list.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCreditBalanceMinFilter('above_10k')}
+                        style={{
+                          padding: '4px 12px',
+                          borderRadius: 16,
+                          border: creditBalanceMinFilter === 'above_10k' ? 'none' : '1px solid #fca5a5',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          background: creditBalanceMinFilter === 'above_10k' ? '#dc2626' : '#fef2f2',
+                          color: creditBalanceMinFilter === 'above_10k' ? '#fff' : '#b91c1c',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4
+                        }}
+                      >
+                        <span>⚠️ {language === 'mr' ? '१०,०००+ उधारी बाकी' : 'Balance > ₹10,000'}</span>
+                        <span style={{
+                          background: creditBalanceMinFilter === 'above_10k' ? 'rgba(255,255,255,0.3)' : '#fee2e2',
+                          padding: '1px 6px',
+                          borderRadius: 10,
+                          fontSize: '0.68rem'
+                        }}>
+                          {highCreditCustomers.length}
                         </span>
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {creditBalanceMinFilter === 'above_10k' && (
+                    <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 16px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10, color: '#b91c1c', fontSize: '0.85rem' }}>
+                      <AlertIcon style={{ width: 18, height: 18, flexShrink: 0 }} />
+                      <div>
+                        <strong>{language === 'mr' ? '१०,००० पेक्षा जास्त उधारी असलेले ग्राहक' : 'Customers with Outstanding Balance Exceeding ₹10,000'}</strong>:
+                        {' '}{filteredList.length} {language === 'mr' ? 'ग्राहक' : 'customers'} • {language === 'mr' ? 'एकूण थकित बाकी' : 'Total Outstanding'}: <strong>₹{filteredList.reduce((s, c) => s + Number(c.credit_balance || 0), 0).toLocaleString('en-IN')}</strong>
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredList.length === 0 ? (
+                    <div style={{ padding: '30px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+                      {language === 'mr' ? '१०,००० पेक्षा जास्त उधारी असलेला कोणताही ग्राहक नाही.' : 'No customers with balance > ₹10,000.'}
+                    </div>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th className="table-th">{t('customers.name')}</th>
+                            <th className="table-th">{t('customers.mobile')}</th>
+                            <th className="table-th" style={{ textAlign: 'center' }}>{t('credit.todaySubmit') || 'आज जमा / भरणा'}</th>
+                            <th className="table-th" style={{ textAlign: 'center' }}>{t('credit.lastBalanceUpdate') || 'शेवटचा व्यवहार दिनांक'}</th>
+                            <th className="table-th" style={{ textAlign: 'right' }}>{t('credit.balanceAfter')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filteredList.map((c) => {
+                            const todayPaid = Number(c.today_recovery || 0);
+                            const hasTodayPaid = todayPaid > 0;
+                            const lastDate = c.last_transaction_date;
+                            const daysAgo = getDaysAgoLabel(lastDate, date, language === 'mr');
+                            const isHighCredit = Number(c.credit_balance || 0) >= 10000;
+
+                            return (
+                              <tr
+                                className="table-row"
+                                key={c.id}
+                                style={{
+                                  borderLeft: isHighCredit ? '4px solid #ef4444' : undefined,
+                                  background: isHighCredit ? 'rgba(239, 68, 68, 0.02)' : undefined
+                                }}
+                              >
+                                <td className="table-cell" style={{ fontWeight: 600 }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                    <span>{c.name}</span>
+                                    {isHighCredit && (
+                                      <span style={{ fontSize: '0.64rem', color: '#b91c1c', background: '#fee2e2', border: '1px solid #fca5a5', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>
+                                        ⚠️ &gt; ₹10k
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="table-cell" style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem' }}>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                    <PhoneIcon style={{ width: '12px', height: '12px' }} /> {c.mobile || '—'}
+                                  </span>
+                                </td>
+                                <td className="table-cell" style={{ textAlign: 'center' }}>
+                                  {hasTodayPaid ? (
+                                    <span style={{
+                                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                                      padding: '3px 8px', borderRadius: '12px',
+                                      background: '#dcfce7', color: '#15803d',
+                                      fontWeight: 700, fontSize: '0.82rem'
+                                    }}>
+                                      🟢 ₹{todayPaid.toFixed(2)}
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>—</span>
+                                  )}
+                                </td>
+                                <td className="table-cell" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                                  {hasTodayPaid ? (
+                                    <span style={{ fontWeight: 700, color: '#15803d', fontSize: '0.82rem' }}>
+                                      {language === 'mr' ? 'आज' : 'Today'} ({formatDDMMYYYY(date)})
+                                    </span>
+                                  ) : lastDate ? (
+                                    <span style={{ fontSize: '0.82rem', color: 'var(--color-text-primary)' }}>
+                                      <strong>{formatDDMMYYYY(lastDate)}</strong>
+                                      {daysAgo && (
+                                        <span style={{ color: 'var(--color-text-muted)', fontSize: '0.74rem', marginLeft: 4 }}>
+                                          ({daysAgo})
+                                        </span>
+                                      )}
+                                    </span>
+                                  ) : (
+                                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>—</span>
+                                  )}
+                                </td>
+                                <td className="table-cell" style={{ textAlign: 'right' }}>
+                                  <span
+                                    className="badge badge-warning"
+                                    style={{
+                                      color: isHighCredit ? '#b91c1c' : undefined,
+                                      background: isHighCredit ? '#fee2e2' : undefined,
+                                      border: isHighCredit ? '1px solid #fca5a5' : undefined,
+                                      fontWeight: 700
+                                    }}
+                                  >
+                                    ₹{Number(c.credit_balance).toFixed(2)}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
+                            <td className="table-cell" colSpan={2} style={{ textAlign: 'right' }}>Total:</td>
+                            <td className="table-cell" style={{ textAlign: 'center', color: 'var(--color-success)', fontWeight: 700 }}>
+                              ₹{filteredList.reduce((s, c) => s + Number(c.today_recovery || 0), 0).toFixed(2)}
+                            </td>
+                            <td className="table-cell"></td>
+                            <td className="table-cell" style={{ textAlign: 'right' }}>
+                              <span className="badge badge-warning" style={{ background: 'transparent', padding: 0 }}>
+                                ₹{filteredList.reduce((s, c) => s + Number(c.credit_balance), 0).toFixed(2)}
+                              </span>
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         );
       }

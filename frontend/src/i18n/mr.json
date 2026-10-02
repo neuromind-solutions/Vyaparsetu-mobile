@@ -378,6 +378,13 @@
     "modeUPI": "युपीआय (UPI)",
     "modeOther": "इतर (Other)",
     "selectCustomerHint": "ग्राहकाचे नाव किंवा मोबाईल नंबर शोधा",
+    "limitExceededBadge": "> १०,०००",
+    "limitExceededWarning": "उधारी मर्यादा सूचना: या ग्राहकाची बाकी ₹१०,००० पेक्षा जास्त आहे!",
+    "filterAbove10k": "१०,०००+ उधारी",
+    "filterBelow10k": "१०,००० खालील",
+    "highCreditCustomers": "१०,०००+ उधारी ग्राहक",
+    "highCreditAlertTitle": "१०,०००+ उधारी थकबाकी ग्राहक",
+    "highCreditAlertDesc": "या ग्राहकांची थकबाकी ₹१०,००० पेक्षा जास्त झाली आहे.",
     "customersWithBalance": "उधार शिल्लक असलेले ग्राहक",
     "notePlaceholder": "उदा. मागील बाकी जमा केली"
   },

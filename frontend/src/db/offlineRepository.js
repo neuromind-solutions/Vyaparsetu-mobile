@@ -1278,12 +1278,18 @@ export const offlineCreditRepo = {
 
     let totalOutstandingPaise = 0;
     let customersWithBalance = 0;
+    let countAbove10k = 0;
+    let totalAbove10kPaise = 0;
 
     for (const c of active) {
       const bal = Number(c.credit_balance || 0);
       if (bal > 0) {
         totalOutstandingPaise += bal;
         customersWithBalance++;
+        if (bal >= 1000000) { // 10,000 INR = 1,000,000 paise
+          countAbove10k++;
+          totalAbove10kPaise += bal;
+        }
       }
     }
 
@@ -1311,6 +1317,8 @@ export const offlineCreditRepo = {
         today_recovered: toRupees(todayRecoveryPaise),
         today_recovery: toRupees(todayRecoveryPaise),
         customers_with_balance: customersWithBalance,
+        count_above_10k: countAbove10k,
+        total_above_10k: toRupees(totalAbove10kPaise),
       },
     };
   },

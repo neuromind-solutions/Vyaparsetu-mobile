@@ -248,10 +248,20 @@ export default function UdharPage() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [modalInitialMode, setModalInitialMode] = useState('payment'); // 'payment' | 'discount'
   const [txFilter, setTxFilter]                 = useState('all'); // all | payments | discounts | credits
+  const [balanceThresholdFilter, setBalanceThresholdFilter] = useState('all'); // all | above_10k | below_10k
   const [toast, setToast] = useState({ message: '', type: 'success' });
   const [undoTarget, setUndoTarget] = useState(null);
   const [undoing, setUndoing] = useState(false);
   const detailPanelRef = useRef(null); // for mobile scroll-into-view
+
+  // Filter customers by credit limit (> ₹10,000)
+  const highCreditCount = customers.filter(c => Number(c.credit_balance || 0) >= 10000).length;
+  const displayedCustomers = customers.filter(c => {
+    const bal = Number(c.credit_balance || 0);
+    if (balanceThresholdFilter === 'above_10k') return bal >= 10000;
+    if (balanceThresholdFilter === 'below_10k') return bal < 10000;
+    return true;
+  });
 
   function handleSelectCustomer(id) {
     setActiveCustomerId(id);
@@ -373,6 +383,24 @@ export default function UdharPage() {
             <div className="kpi-label">{t('credit.customersWithBalance') || 'Customers with Udhar'}</div>
           </div>
         </div>
+        <div
+          className="kpi-card"
+          onClick={() => setBalanceThresholdFilter(balanceThresholdFilter === 'above_10k' ? 'all' : 'above_10k')}
+          style={{
+            cursor: 'pointer',
+            border: balanceThresholdFilter === 'above_10k' ? '2px solid #ef4444' : undefined,
+            transition: 'all 0.15s ease'
+          }}
+          title={language === 'mr' ? '१०,०००+ उधारी असलेले ग्राहक पाहण्यासाठी क्लिक करा' : 'Filter customers with balance > ₹10,000'}
+        >
+          <div className="kpi-icon-box kpi-icon-red">
+            <AlertIcon style={{ width: '20px', height: '20px' }} />
+          </div>
+          <div className="kpi-content">
+            <div className="kpi-value" style={{ color: highCreditCount > 0 ? '#dc2626' : undefined }}>{highCreditCount}</div>
+            <div className="kpi-label">{t('credit.highCreditCustomers') || 'Udhar > ₹10,000'}</div>
+          </div>
+        </div>
       </div>
 
       {/* ── Two-panel Grid ────────────────────────────────────────────────── */}
@@ -399,9 +427,74 @@ export default function UdharPage() {
               <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>{t('credit.customersWithBalance') || 'Customers'}</span>
               {customers.length > 0 && (
                 <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--color-text-muted)', background: 'var(--color-border-light)', padding: '2px 8px', borderRadius: '20px', fontWeight: 600 }}>
-                  {customers.length}
+                  {displayedCustomers.length} / {customers.length}
                 </span>
               )}
+            </div>
+
+            {/* Filter Pills */}
+            <div style={{ display: 'flex', gap: 6, padding: '8px 12px', background: 'var(--color-bg-light)', borderBottom: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setBalanceThresholdFilter('all')}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: 16,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
+                  background: balanceThresholdFilter === 'all' ? 'var(--color-primary)' : 'var(--color-surface)',
+                  color: balanceThresholdFilter === 'all' ? '#fff' : 'var(--color-text-secondary)',
+                  boxShadow: balanceThresholdFilter === 'all' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                }}
+              >
+                {t('common.all') || 'All'} ({customers.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setBalanceThresholdFilter('above_10k')}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: 16,
+                  border: balanceThresholdFilter === 'above_10k' ? 'none' : '1px solid #fca5a5',
+                  cursor: 'pointer',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  background: balanceThresholdFilter === 'above_10k' ? '#dc2626' : '#fef2f2',
+                  color: balanceThresholdFilter === 'above_10k' ? '#fff' : '#b91c1c',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+              >
+                <span>⚠️ {t('credit.filterAbove10k') || '> ₹10,000'}</span>
+                <span style={{
+                  background: balanceThresholdFilter === 'above_10k' ? 'rgba(255,255,255,0.3)' : '#fee2e2',
+                  padding: '1px 5px',
+                  borderRadius: 10,
+                  fontSize: '0.68rem'
+                }}>
+                  {highCreditCount}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setBalanceThresholdFilter('below_10k')}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: 16,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
+                  background: balanceThresholdFilter === 'below_10k' ? 'var(--color-primary)' : 'var(--color-surface)',
+                  color: balanceThresholdFilter === 'below_10k' ? '#fff' : 'var(--color-text-secondary)',
+                  boxShadow: balanceThresholdFilter === 'below_10k' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                }}
+              >
+                {t('credit.filterBelow10k') || '< ₹10,000'} ({customers.length - highCreditCount})
+              </button>
             </div>
 
             {error && !loading && (
@@ -409,40 +502,56 @@ export default function UdharPage() {
             )}
             {loading && <div className="table-message"><span className="spinner" style={{ margin: 'auto' }} /></div>}
 
-            {!loading && !error && customers.length === 0 && (
+            {!loading && !error && displayedCustomers.length === 0 && (
               <div className="table-message" style={{ padding: '40px 20px' }}>
                 <UsersIcon style={{ width: '1.8rem', height: '1.8rem', color: 'var(--color-text-muted)', marginBottom: 8 }} />
                 <p style={{ fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
-                  {searchQuery ? t('credit.noSearchResults') : t('credit.noPendingCustomers')}
+                  {searchQuery ? t('credit.noSearchResults') : (balanceThresholdFilter === 'above_10k' ? (language === 'mr' ? '१०,००० पेक्षा जास्त उधारी असलेला कोणताही ग्राहक नाही' : 'No customers with balance > ₹10,000') : t('credit.noPendingCustomers'))}
                 </p>
               </div>
             )}
 
-            {!loading && !error && customers.length > 0 && customers.map(c => (
-              <div
-                key={c.id}
-                className={`udhar-customer-row${activeCustomerId === c.id ? ' active' : ''}`}
-                onClick={() => handleSelectCustomer(c.id)}
-              >
-                <CustomerAvatar name={c.name} size={36} />
-                <div className="udhar-customer-info">
-                  <div className="udhar-customer-name">{c.name}</div>
-                  <div className="udhar-customer-mobile">{c.mobile}</div>
-                </div>
-                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-                  <span className="udhar-balance-badge">₹{fmtCurrency(c.credit_balance)}</span>
-                  {Number(c.today_recovery || 0) > 0 ? (
-                    <span style={{ fontSize: '0.68rem', color: '#15803d', fontWeight: 700, background: '#dcfce7', padding: '1px 6px', borderRadius: '10px' }}>
-                      🟢 ₹{fmtCurrency(c.today_recovery)} {language === 'mr' ? 'आज जमा' : 'Paid Today'}
+            {!loading && !error && displayedCustomers.length > 0 && displayedCustomers.map(c => {
+              const isHighCredit = Number(c.credit_balance || 0) >= 10000;
+              return (
+                <div
+                  key={c.id}
+                  className={`udhar-customer-row${activeCustomerId === c.id ? ' active' : ''}`}
+                  onClick={() => handleSelectCustomer(c.id)}
+                  style={{
+                    borderLeft: isHighCredit ? '4px solid #ef4444' : undefined,
+                    background: isHighCredit && activeCustomerId !== c.id ? 'rgba(239, 68, 68, 0.03)' : undefined
+                  }}
+                >
+                  <CustomerAvatar name={c.name} size={36} />
+                  <div className="udhar-customer-info">
+                    <div className="udhar-customer-name" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <span>{c.name}</span>
+                      {isHighCredit && (
+                        <span style={{ fontSize: '0.64rem', color: '#b91c1c', background: '#fee2e2', border: '1px solid #fca5a5', padding: '1px 5px', borderRadius: '4px', fontWeight: 700 }}>
+                          ⚠️ &gt; ₹10k
+                        </span>
+                      )}
+                    </div>
+                    <div className="udhar-customer-mobile">{c.mobile}</div>
+                  </div>
+                  <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                    <span className="udhar-balance-badge" style={{ color: isHighCredit ? '#b91c1c' : undefined, background: isHighCredit ? '#fee2e2' : undefined }}>
+                      ₹{fmtCurrency(c.credit_balance)}
                     </span>
-                  ) : c.last_transaction_date ? (
-                    <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
-                      {formatDDMMYYYY(c.last_transaction_date)}
-                    </span>
-                  ) : null}
+                    {Number(c.today_recovery || 0) > 0 ? (
+                      <span style={{ fontSize: '0.68rem', color: '#15803d', fontWeight: 700, background: '#dcfce7', padding: '1px 6px', borderRadius: '10px' }}>
+                        🟢 ₹{fmtCurrency(c.today_recovery)} {language === 'mr' ? 'आज जमा' : 'Paid Today'}
+                      </span>
+                    ) : c.last_transaction_date ? (
+                      <span style={{ fontSize: '0.68rem', color: 'var(--color-text-muted)' }}>
+                        {formatDDMMYYYY(c.last_transaction_date)}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -454,6 +563,16 @@ export default function UdharPage() {
         >
           {activeCustomer ? (
             <>
+              {/* High Credit Alert Banner for Selected Customer */}
+              {Number(activeCustomer.credit_balance || 0) >= 10000 && (
+                <div style={{ background: '#fef2f2', borderBottom: '1px solid #fecaca', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: 10, color: '#b91c1c', fontSize: '0.82rem', fontWeight: 600 }}>
+                  <AlertIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
+                  <span>
+                    ⚠️ {t('credit.limitExceededWarning') || 'Credit Limit Alert: Balance exceeds ₹10,000!'}
+                  </span>
+                </div>
+              )}
+
               {/* Customer Header */}
               <div style={{ padding: '14px 14px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-bg)', overflow: 'hidden' }}>
                 {/* Mobile back button */}

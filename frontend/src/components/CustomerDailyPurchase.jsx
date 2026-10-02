@@ -278,6 +278,11 @@ export default function CustomerDailyPurchase({
             onSelectCustomer={(c) => onSelectCustomer(c ? c.id : null)}
             placeholder={t('transactions.selectCustomer')}
           />
+          {activeCustomer && Number(activeCustomer.credit_balance || 0) >= 10000 && (
+            <div style={{ marginTop: '6px', fontSize: '0.78rem', color: '#b91c1c', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '4px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+              <span>⚠️ {t('credit.limitExceededWarning') || 'उधारी मर्यादा सूचना: बाकी ₹१०,००० पेक्षा जास्त!'} (₹{Number(activeCustomer.credit_balance).toLocaleString('en-IN')})</span>
+            </div>
+          )}
         </div>
 
         {dateFilterType === 'specific' && (

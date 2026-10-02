@@ -1480,3 +1480,117 @@ export function exportDailyReportToExcel(reportData, selectedDate) {
   return saveWorkbook(wb, filename);
 }
 
+/**
+ * Exports Credit / Udhar balance report to Excel with support for filtering > ₹10,000 debtors.
+ *
+ * @param {Object} creditData Data from /api/reports/credit
+ * @param {string} [selectedDate]
+ * @param {boolean} [onlyAbove10k] If true, exports only customers with balance >= 10000
+ */
+export async function exportCreditReportToExcel(creditData, selectedDate, onlyAbove10k = false) {
+  if (!creditData) return;
+
+  const rawCustomers = creditData.customers || [];
+  const customers = onlyAbove10k
+    ? rawCustomers.filter((c) => Number(c.credit_balance || 0) >= 10000)
+    : rawCustomers;
+  const recoveries = creditData.recoveries || [];
+  const dateStr = selectedDate || new Date().toISOString().slice(0, 10);
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Customer Balances
+  const title = onlyAbove10k
+    ? `=== १०,०००+ उधारी थकबाकी ग्राहक यादी (${formatDDMMYYYY(dateStr)}) ===`
+    : `=== ग्राहक उधारी अहवाल (${formatDDMMYYYY(dateStr)}) ===`;
+
+  const balRows = [
+    [title],
+    [],
+    [
+      'अ.क्र (Sr.)',
+      'ग्राहक नाव (Customer Name)',
+      'मोबाईल (Mobile)',
+      'आज जमा रक्कम (Today Paid ₹)',
+      'शेवटचा व्यवहार दिनांक (Last Date)',
+      'चालू येणे उधारी (Balance Udhar ₹)',
+      'मर्यादा स्थिती (Limit Status)',
+    ],
+  ];
+
+  let totalBal = 0;
+  let totalToday = 0;
+  customers.forEach((c, idx) => {
+    const bal = Number(c.credit_balance || 0);
+    const today = Number(c.today_recovery || 0);
+    totalBal += bal;
+    totalToday += today;
+    balRows.push([
+      idx + 1,
+      c.name,
+      c.mobile || '-',
+      today,
+      c.last_transaction_date ? formatDDMMYYYY(c.last_transaction_date) : '-',
+      bal,
+      bal >= 10000 ? '⚠️ मर्यादा ओलांडली (> ₹10,000)' : 'सामान्य (Normal)',
+    ]);
+  });
+
+  balRows.push([]);
+  balRows.push([
+    'एकूण (Total)',
+    `${customers.length} ग्राहक`,
+    '',
+    totalToday,
+    '',
+    totalBal,
+    '',
+  ]);
+
+  const wsBal = XLSX.utils.aoa_to_sheet(balRows);
+  wsBal['!cols'] = [
+    { wch: 8 },
+    { wch: 26 },
+    { wch: 16 },
+    { wch: 18 },
+    { wch: 22 },
+    { wch: 22 },
+    { wch: 24 },
+  ];
+  appendSheetSafely(wb, wsBal, onlyAbove10k ? 'High Udhar 10k+' : 'Udhar Balances');
+
+  // Sheet 2: Recoveries on this date (if present)
+  if (recoveries.length > 0) {
+    const recRows = [
+      [`=== या तारखेला झालेली वसुली (${formatDDMMYYYY(dateStr)}) ===`],
+      [],
+      ['अ.क्र (Sr.)', 'ग्राहक नाव', 'मोबाईल', 'पेमेंट प्रकार', 'वेळ', 'तपशील / टीप', 'जमा रक्कम ₹'],
+    ];
+    let recTotal = 0;
+    recoveries.forEach((r, idx) => {
+      const amt = Number(r.amount || 0);
+      recTotal += amt;
+      recRows.push([
+        idx + 1,
+        r.customer_name,
+        r.customer_mobile || '-',
+        r.payment_mode || 'Cash',
+        r.created_at ? new Date(r.created_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '-',
+        r.note || '-',
+        amt,
+      ]);
+    });
+    recRows.push([]);
+    recRows.push(['एकूण वसुली', `${recoveries.length} नोंदी`, '', '', '', '', recTotal]);
+    const wsRec = XLSX.utils.aoa_to_sheet(recRows);
+    wsRec['!cols'] = [
+      { wch: 8 }, { wch: 24 }, { wch: 15 }, { wch: 14 }, { wch: 12 }, { wch: 24 }, { wch: 16 },
+    ];
+    appendSheetSafely(wb, wsRec, 'Recoveries');
+  }
+
+  const filename = onlyAbove10k
+    ? `High_Credit_10k_Customers_${dateStr}.xlsx`
+    : `Credit_Report_${dateStr}.xlsx`;
+  return saveWorkbook(wb, filename);
+}
+
