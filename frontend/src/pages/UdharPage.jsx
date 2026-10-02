@@ -590,7 +590,7 @@ export default function UdharPage() {
                   ← {t('common.back') || 'Back to list'}
                 </button>
                 {/* Customer info row — flex with overflow guards so it never overflows horizontally */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, minWidth: 0, overflow: 'hidden' }}>
+                <div className="udhar-detail-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, minWidth: 0, overflow: 'hidden' }}>
                   {/* Left: avatar + name/phone */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: '1 1 auto', overflow: 'hidden' }}>
                     <CustomerAvatar name={activeCustomer.name} size={36} />
@@ -726,7 +726,7 @@ export default function UdharPage() {
                 );
 
                 return (
-                  <div style={{ overflowX: 'auto' }}>
+                  <div className="table-wrapper">
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                       <thead>
                         <tr style={{ background: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>

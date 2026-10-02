@@ -1054,129 +1054,135 @@ export default function ReportsPage() {
 
         // Fallback for bills-only if customers breakdown is empty
         return (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th className="table-th">{t('billing.billNumber')}</th>
-                <th className="table-th">{t('billing.customer')}</th>
-                <th className="table-th">{t('billing.date')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.total')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.paid')}</th>
-                <th className="table-th">{t('billing.status')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bills.map((bill) => (
-                <tr className="table-row" key={bill.id}>
-                  <td className="table-cell" style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.82rem' }}>{bill.bill_number}</td>
-                  <td className="table-cell">
-                    <div style={{ fontWeight: 600 }}>{bill.customer_name}</div>
-                    <div className="text-muted text-sm">{bill.customer_mobile}</div>
-                  </td>
-                  <td className="table-cell" style={{ whiteSpace: 'nowrap', fontSize: '0.82rem' }}>{formatDDMMYYYY(bill.date)}</td>
-                  <td className="table-cell" style={{ fontWeight: 700, textAlign: 'right' }}>₹{Number(bill.final_amount).toFixed(2)}</td>
-                  <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-success)' }}>₹{Number(bill.paid_amount).toFixed(2)}</td>
-                  <td className="table-cell">
-                    <span className={`badge badge-${bill.payment_status === 'Paid' ? 'success' : bill.payment_status === 'Partial' ? 'warning' : 'error'}`}>
-                      {t(`billing.status${bill.payment_status}`)}
-                    </span>
-                  </td>
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th className="table-th">{t('billing.billNumber')}</th>
+                  <th className="table-th">{t('billing.customer')}</th>
+                  <th className="table-th">{t('billing.date')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.total')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.paid')}</th>
+                  <th className="table-th">{t('billing.status')}</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
-                <td className="table-cell" colSpan={3} style={{ textAlign: 'right' }}>Total:</td>
-                <td className="table-cell" style={{ textAlign: 'right' }}>₹{bills.reduce((s, b) => s + Number(b.final_amount), 0).toFixed(2)}</td>
-                <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-success)' }}>₹{bills.reduce((s, b) => s + Number(b.paid_amount), 0).toFixed(2)}</td>
-                <td className="table-cell"></td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {bills.map((bill) => (
+                  <tr className="table-row" key={bill.id}>
+                    <td className="table-cell" style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.82rem' }}>{bill.bill_number}</td>
+                    <td className="table-cell">
+                      <div style={{ fontWeight: 600 }}>{bill.customer_name}</div>
+                      <div className="text-muted text-sm">{bill.customer_mobile}</div>
+                    </td>
+                    <td className="table-cell" style={{ whiteSpace: 'nowrap', fontSize: '0.82rem' }}>{formatDDMMYYYY(bill.date)}</td>
+                    <td className="table-cell" style={{ fontWeight: 700, textAlign: 'right' }}>₹{Number(bill.final_amount).toFixed(2)}</td>
+                    <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-success)' }}>₹{Number(bill.paid_amount).toFixed(2)}</td>
+                    <td className="table-cell">
+                      <span className={`badge badge-${bill.payment_status === 'Paid' ? 'success' : bill.payment_status === 'Partial' ? 'warning' : 'error'}`}>
+                        {t(`billing.status${bill.payment_status}`)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
+                  <td className="table-cell" colSpan={3} style={{ textAlign: 'right' }}>Total:</td>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>₹{bills.reduce((s, b) => s + Number(b.final_amount), 0).toFixed(2)}</td>
+                  <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-success)' }}>₹{bills.reduce((s, b) => s + Number(b.paid_amount), 0).toFixed(2)}</td>
+                  <td className="table-cell"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         );
       }
       case 'customers': {
         if (!Array.isArray(data)) return null;
         return (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th className="table-th">{t('customers.name')}</th>
-                <th className="table-th">{t('customers.mobile')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.totalBills')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>Total Purchases</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>Total Paid</th>
-                <th className="table-th">{t('credit.balanceAfter')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((c) => (
-                <tr className="table-row" key={c.customer_id}>
-                  <td className="table-cell" style={{ fontWeight: 600 }}>{c.customer_name}</td>
-                  <td className="table-cell" style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><PhoneIcon style={{ width: '12px', height: '12px' }} /> {c.customer_mobile}</span>
-                  </td>
-                  <td className="table-cell" style={{ textAlign: 'right' }}>{c.total_bills}</td>
-                  <td className="table-cell" style={{ fontWeight: 600, textAlign: 'right' }}>₹{Number(c.total_purchase).toFixed(2)}</td>
-                  <td className="table-cell" style={{ color: 'var(--color-success)', textAlign: 'right' }}>₹{Number(c.total_paid).toFixed(2)}</td>
-                  <td className="table-cell">
-                    <span className={`badge ${c.total_pending_credit > 0 ? 'badge-warning' : 'badge-success'}`}>
-                      ₹{Number(c.total_pending_credit).toFixed(2)}
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th className="table-th">{t('customers.name')}</th>
+                  <th className="table-th">{t('customers.mobile')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.totalBills')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>Total Purchases</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>Total Paid</th>
+                  <th className="table-th">{t('credit.balanceAfter')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((c) => (
+                  <tr className="table-row" key={c.customer_id}>
+                    <td className="table-cell" style={{ fontWeight: 600 }}>{c.customer_name}</td>
+                    <td className="table-cell" style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><PhoneIcon style={{ width: '12px', height: '12px' }} /> {c.customer_mobile}</span>
+                    </td>
+                    <td className="table-cell" style={{ textAlign: 'right' }}>{c.total_bills}</td>
+                    <td className="table-cell" style={{ fontWeight: 600, textAlign: 'right' }}>₹{Number(c.total_purchase).toFixed(2)}</td>
+                    <td className="table-cell" style={{ color: 'var(--color-success)', textAlign: 'right' }}>₹{Number(c.total_paid).toFixed(2)}</td>
+                    <td className="table-cell">
+                      <span className={`badge ${c.total_pending_credit > 0 ? 'badge-warning' : 'badge-success'}`}>
+                        ₹{Number(c.total_pending_credit).toFixed(2)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
+                  <td className="table-cell" colSpan={2} style={{ textAlign: 'right' }}>Total:</td>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>{data.reduce((s, c) => s + Number(c.total_bills), 0)}</td>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>₹{data.reduce((s, c) => s + Number(c.total_purchase), 0).toFixed(2)}</td>
+                  <td className="table-cell" style={{ color: 'var(--color-success)', textAlign: 'right' }}>₹{data.reduce((s, c) => s + Number(c.total_paid), 0).toFixed(2)}</td>
+                  <td className="table-cell" style={{ color: 'var(--color-error)' }}>
+                    <span className="badge badge-error" style={{ background: 'transparent', padding: 0 }}>
+                      ₹{data.reduce((s, c) => s + Number(c.total_pending_credit), 0).toFixed(2)}
                     </span>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
-                <td className="table-cell" colSpan={2} style={{ textAlign: 'right' }}>Total:</td>
-                <td className="table-cell" style={{ textAlign: 'right' }}>{data.reduce((s, c) => s + Number(c.total_bills), 0)}</td>
-                <td className="table-cell" style={{ textAlign: 'right' }}>₹{data.reduce((s, c) => s + Number(c.total_purchase), 0).toFixed(2)}</td>
-                <td className="table-cell" style={{ color: 'var(--color-success)', textAlign: 'right' }}>₹{data.reduce((s, c) => s + Number(c.total_paid), 0).toFixed(2)}</td>
-                <td className="table-cell" style={{ color: 'var(--color-error)' }}>
-                  <span className="badge badge-error" style={{ background: 'transparent', padding: 0 }}>
-                    ₹{data.reduce((s, c) => s + Number(c.total_pending_credit), 0).toFixed(2)}
-                  </span>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </tfoot>
+            </table>
+          </div>
         );
       }
       case 'vegetables': {
         if (!Array.isArray(data)) return null;
         return (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th className="table-th">{t('vegetables.name')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>Volume Sold</th>
-                <th className="table-th">Unit</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>Total Revenue</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>Bills Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((v) => (
-                <tr className="table-row" key={v.vegetable_id}>
-                  <td className="table-cell" style={{ fontWeight: 600 }}>{v.vegetable_name}</td>
-                  <td className="table-cell" style={{ textAlign: 'right', fontWeight: 600 }}>{Number(v.total_quantity).toFixed(2)}</td>
-                  <td className="table-cell" style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem' }}>{v.vegetable_unit ? t(`vegetables.units.${v.vegetable_unit}`) : ''}</td>
-                  <td className="table-cell" style={{ fontWeight: 700, textAlign: 'right', color: 'var(--color-primary)' }}>₹{Number(v.total_sales).toFixed(2)}</td>
-                  <td className="table-cell" style={{ textAlign: 'right' }}>{v.total_bills}</td>
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th className="table-th">{t('vegetables.name')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>Volume Sold</th>
+                  <th className="table-th">Unit</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>Total Revenue</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>Bills Count</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
-                <td className="table-cell" style={{ textAlign: 'right' }}>Total:</td>
-                <td className="table-cell" style={{ textAlign: 'right' }}>{data.reduce((s, v) => s + Number(v.total_quantity), 0).toFixed(2)}</td>
-                <td className="table-cell"></td>
-                <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-primary)' }}>₹{data.reduce((s, v) => s + Number(v.total_sales), 0).toFixed(2)}</td>
-                <td className="table-cell" style={{ textAlign: 'right' }}>{data.reduce((s, v) => s + Number(v.total_bills), 0)}</td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {data.map((v) => (
+                  <tr className="table-row" key={v.vegetable_id}>
+                    <td className="table-cell" style={{ fontWeight: 600 }}>{v.vegetable_name}</td>
+                    <td className="table-cell" style={{ textAlign: 'right', fontWeight: 600 }}>{Number(v.total_quantity).toFixed(2)}</td>
+                    <td className="table-cell" style={{ color: 'var(--color-text-muted)', fontSize: '0.82rem' }}>{v.vegetable_unit ? t(`vegetables.units.${v.vegetable_unit}`) : ''}</td>
+                    <td className="table-cell" style={{ fontWeight: 700, textAlign: 'right', color: 'var(--color-primary)' }}>₹{Number(v.total_sales).toFixed(2)}</td>
+                    <td className="table-cell" style={{ textAlign: 'right' }}>{v.total_bills}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>Total:</td>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>{data.reduce((s, v) => s + Number(v.total_quantity), 0).toFixed(2)}</td>
+                  <td className="table-cell"></td>
+                  <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-primary)' }}>₹{data.reduce((s, v) => s + Number(v.total_sales), 0).toFixed(2)}</td>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>{data.reduce((s, v) => s + Number(v.total_bills), 0)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         );
       }
       case 'credit': {
@@ -1455,35 +1461,37 @@ export default function ReportsPage() {
       case 'commission': {
         const list = data.billWise || [];
         return (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th className="table-th">{t('billing.billNumber')}</th>
-                <th className="table-th">{t('billing.customer')}</th>
-                <th className="table-th">{t('billing.date')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.total')}</th>
-                <th className="table-th" style={{ textAlign: 'right' }}>{t('reports.totalCommission')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((c) => (
-                <tr className="table-row" key={c.bill_id}>
-                  <td className="table-cell" style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.82rem' }}>{c.bill_number}</td>
-                  <td className="table-cell" style={{ fontWeight: 600 }}>{c.customer_name}</td>
-                  <td className="table-cell" style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>{formatDDMMYYYY(c.date)}</td>
-                  <td className="table-cell" style={{ textAlign: 'right' }}>₹{Number(c.final_amount).toFixed(2)}</td>
-                  <td className="table-cell" style={{ textAlign: 'right', fontWeight: 700, color: 'var(--color-primary)' }}>₹{Number(c.commission_amount).toFixed(2)}</td>
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th className="table-th">{t('billing.billNumber')}</th>
+                  <th className="table-th">{t('billing.customer')}</th>
+                  <th className="table-th">{t('billing.date')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>{t('billing.total')}</th>
+                  <th className="table-th" style={{ textAlign: 'right' }}>{t('reports.totalCommission')}</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
-                <td className="table-cell" colSpan={3} style={{ textAlign: 'right' }}>Total:</td>
-                <td className="table-cell" style={{ textAlign: 'right' }}>₹{list.reduce((s, c) => s + Number(c.final_amount), 0).toFixed(2)}</td>
-                <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-primary)' }}>₹{list.reduce((s, c) => s + Number(c.commission_amount), 0).toFixed(2)}</td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {list.map((c) => (
+                  <tr className="table-row" key={c.bill_id}>
+                    <td className="table-cell" style={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.82rem' }}>{c.bill_number}</td>
+                    <td className="table-cell" style={{ fontWeight: 600 }}>{c.customer_name}</td>
+                    <td className="table-cell" style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>{formatDDMMYYYY(c.date)}</td>
+                    <td className="table-cell" style={{ textAlign: 'right' }}>₹{Number(c.final_amount).toFixed(2)}</td>
+                    <td className="table-cell" style={{ textAlign: 'right', fontWeight: 700, color: 'var(--color-primary)' }}>₹{Number(c.commission_amount).toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: 'var(--color-bg-light)', fontWeight: 700 }}>
+                  <td className="table-cell" colSpan={3} style={{ textAlign: 'right' }}>Total:</td>
+                  <td className="table-cell" style={{ textAlign: 'right' }}>₹{list.reduce((s, c) => s + Number(c.final_amount), 0).toFixed(2)}</td>
+                  <td className="table-cell" style={{ textAlign: 'right', color: 'var(--color-primary)' }}>₹{list.reduce((s, c) => s + Number(c.commission_amount), 0).toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         );
       }
       default:
