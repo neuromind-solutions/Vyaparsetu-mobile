@@ -1,4 +1,4 @@
-﻿/**
+/**
  * QRScannerModal — Mobile
  *
  * Uses @capacitor-mlkit/barcode-scanning to open the native Android camera
@@ -16,33 +16,35 @@ import { useState, useEffect, useRef } from 'react';
 const PAYLOAD_TYPE = 'vyaparsetu_pair';
 const MAX_AGE_MS = 5 * 60 * 1000; // reject QRs older than 5 minutes
 
-async function scanWithMLKit() {
+// Returns true if the Capacitor MLKit barcode plugin is available in this runtime
+async function isMLKitAvailable() {
   try {
-    const { BarcodeScanner, BarcodeFormat } = await import('@capacitor-mlkit/barcode-scanning');
-
-    // Check & request camera permission
-    const { camera } = await BarcodeScanner.checkPermissions();
-    if (camera !== 'granted') {
-      const { camera: granted } = await BarcodeScanner.requestPermissions();
-      if (granted !== 'granted') {
-        throw new Error('Camera permission was denied. Please allow camera access in Android Settings.');
-      }
-    }
-
-    const result = await BarcodeScanner.scan({
-      formats: [BarcodeFormat.QrCode],
-    });
-
-    if (result.barcodes && result.barcodes.length > 0) {
-      return result.barcodes[0].rawValue;
-    }
-    return null;
-  } catch (err) {
-    if (err?.message?.includes('user cancel') || err?.message?.includes('cancel')) {
-      return null; // user tapped back — not an error
-    }
-    throw err;
+    const mod = await import('@capacitor-mlkit/barcode-scanning');
+    // The plugin registers on Capacitor — if Capacitor itself isn't loaded we'll get an error
+    return !!(mod && mod.BarcodeScanner);
+  } catch (_) {
+    return false;
   }
+}
+
+async function scanWithMLKit() {
+  const { BarcodeScanner, BarcodeFormat } = await import('@capacitor-mlkit/barcode-scanning');
+
+  // Check & request camera permission
+  const { camera } = await BarcodeScanner.checkPermissions();
+  if (camera !== 'granted') {
+    const { camera: granted } = await BarcodeScanner.requestPermissions();
+    if (granted !== 'granted') {
+      throw new Error('Camera permission was denied. Please allow camera access in Android Settings.');
+    }
+  }
+
+  const result = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
+
+  if (result.barcodes && result.barcodes.length > 0) {
+    return result.barcodes[0].rawValue;
+  }
+  return null;
 }
 
 function parsePayload(rawValue) {
@@ -75,11 +77,19 @@ export default function QRScannerModal({ onPaired, onClose }) {
   const [manualJson, setManualJson] = useState('');
   const scanAttemptedRef = useRef(false);
 
-  // Auto-start scan on mount (only once)
+  // Auto-start scan on mount (only once) — falls back to manual mode gracefully
   useEffect(() => {
     if (scanAttemptedRef.current) return;
     scanAttemptedRef.current = true;
-    startScan();
+    // Check availability before auto-starting so we don't flash an error in browser
+    isMLKitAvailable().then((available) => {
+      if (available) {
+        startScan();
+      } else {
+        // Running in browser or environment without native plugin — go straight to manual
+        setManualMode(true);
+      }
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -99,8 +109,24 @@ export default function QRScannerModal({ onPaired, onClose }) {
       setScanning(false);
       setTimeout(() => onPaired(creds), 600);
     } catch (err) {
-      setError(err.message || 'Scan failed. Please try again or use manual mode.');
-      setScanning(false);
+      // Silent close if user pressed Back/cancelled
+      if (err?.message?.includes('user cancel') || err?.message?.includes('cancel')) {
+        setScanning(false);
+        onClose();
+        return;
+      }
+      // Plugin unavailable (browser/Electron) — fall back to manual paste
+      const isPluginError = err?.message?.includes('not implemented') ||
+                            err?.message?.includes('not available') ||
+                            err?.message?.includes('plugin') ||
+                            err?.message?.includes('Capacitor');
+      if (isPluginError) {
+        setManualMode(true);
+        setScanning(false);
+      } else {
+        setError(err.message || 'Scan failed. Please try again or use manual mode.');
+        setScanning(false);
+      }
     }
   };
 
